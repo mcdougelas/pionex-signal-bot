@@ -56,6 +56,16 @@ Default settings (configurable in `bot.py`):
 - `POST /api/run` - Run bot logic (params: `send_webhook: boolean`)
 - `GET /api/status` - Check configuration status
 
-## How To do (old version):
+## How To :
+## (old version)
 - Cloudflare - worker.js - setting cron trigger - post webhook to pipedream -
 - Pipeream step - get webhook - get data store - pipedream.py - update data store
+
+## (new version)
+- Open `templates/index.html` - Web interface for monitoring and testing
+- Set `PIONEX_TOKEN` and `SIGNAL_KEY` in Replit Secrets
+- Run the application (workflow starts automatically)
+- Open the web interface
+- Click "Test Signal" to see current market conditions
+- Click "Run & Send Webhook" to execute and send signal to Pionex
+
