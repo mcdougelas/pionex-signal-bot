@@ -1,8 +1,34 @@
 from flask import Flask, render_template, jsonify, request
 from bot import PionexBot
 import os
+import json
 
 app = Flask(__name__)
+
+bot_instance = PionexBot()
+
+STATE_FILE = 'bot_state.json'
+
+def load_state():
+    """Load previous signal state from file"""
+    try:
+        if os.path.exists(STATE_FILE):
+            with open(STATE_FILE, 'r') as f:
+                data = json.load(f)
+                return data.get('prev_signal')
+    except Exception:
+        pass
+    return None
+
+def save_state(signal):
+    """Save signal state to file"""
+    try:
+        with open(STATE_FILE, 'w') as f:
+            json.dump({'prev_signal': signal}, f)
+    except Exception:
+        pass
+
+bot_instance.prev_signal = load_state()
 
 @app.route('/')
 def index():
@@ -19,8 +45,13 @@ def run_bot():
         data = request.get_json() or {}
         send_webhook = data.get('send_webhook', False)
         
-        bot = PionexBot()
-        result = bot.run(send_webhook=send_webhook)
+        result = bot_instance.run(send_webhook=send_webhook)
+        
+        if result.get('status') == 'error':
+            return jsonify(result), 500
+        
+        if send_webhook and bot_instance.prev_signal:
+            save_state(bot_instance.prev_signal)
         
         return jsonify(result)
     except Exception as e:
@@ -41,4 +72,4 @@ def status():
     })
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
