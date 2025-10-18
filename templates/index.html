@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pionex Signal Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-badge.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .result-card.show {
+            display: block;
+        }
+        
+        .result-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+            margin-right: 10px;
+        }
+        
+        .result-value {
+            color: #333;
+        }
+        
+        .signal-buy {
+            color: #28a745;
+            font-weight: 700;
+        }
+        
+        .signal-sell {
+            color: #dc3545;
+            font-weight: 700;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .warning-box p {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #e83e8c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pionex Signal Bot</h1>
+        <p class="subtitle">Automated trading signal generator for Pionex</p>
+        
+        <div class="status-card">
+            <div class="status-item">
+                <span class="status-label">PIONEX_TOKEN</span>
+                <span class="status-badge {% if pionex_token_set %}success{% else %}error{% endif %}">
+                    {% if pionex_token_set %}Configured{% else %}Not Set{% endif %}
+                </span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">SIGNAL_KEY</span>
+                <span class="status-badge {% if signal_key_set %}success{% else %}error{% endif %}">
+                    {% if signal_key_set %}Configured{% else %}Not Set{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        {% if not pionex_token_set or not signal_key_set %}
+        <div class="warning-box">
+            <h4>Configuration Required</h4>
+            <p>Please set the following environment variables in the Secrets tab:</p>
+            <p><code>PIONEX_TOKEN</code> - Your Pionex API token</p>
+            <p><code>SIGNAL_KEY</code> - Your signal key</p>
+        </div>
+        {% endif %}
+        
+        <div class="button-group">
+            <button class="btn-primary" onclick="runBot(false)" id="testBtn">
+                Test Signal (No Webhook)
+            </button>
+            <button class="btn-secondary" onclick="runBot(true)" id="runBtn" 
+                    {% if not pionex_token_set or not signal_key_set %}disabled{% endif %}>
+                Run & Send Webhook
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+        
+        <div class="result-card" id="result">
+            <h3>Result</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function runBot(sendWebhook) {
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            const testBtn = document.getElementById('testBtn');
+            const runBtn = document.getElementById('runBtn');
+            
+            loading.classList.add('show');
+            result.classList.remove('show');
+            testBtn.disabled = true;
+            runBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ send_webhook: sendWebhook })
+                });
+                
+                const data = await response.json();
+                
+                let html = '';
+                
+                if (data.status === 'error') {
+                    html += `<div class="result-item" style="border-left: 4px solid #dc3545;">
+                        <span class="result-label">Error:</span>
+                        <span class="result-value">${data.message}</span>
+                    </div>`;
+                } else {
+                    html += `<div class="result-item">
+                        <span class="result-label">Status:</span>
+                        <span class="result-value">${data.status}</span>
+                    </div>`;
+                    
+                    if (data.price) {
+                        html += `<div class="result-item">
+                            <span class="result-label">Current Price:</span>
+                            <span class="result-value">$${data.price.toFixed(2)}</span>
+                        </div>`;
+                    }
+                    
+                    if (data.ema50) {
+                        html += `<div class="result-item">
+                            <span class="result-label">EMA 50:</span>
+                            <span class="result-value">$${data.ema50.toFixed(2)}</span>
+                        </div>`;
+                    }
+                    
+                    if (data.signal) {
+                        const signalClass = data.signal === 'buy' ? 'signal-buy' : 'signal-sell';
+                        html += `<div class="result-item">
+                            <span class="result-label">Signal:</span>
+                            <span class="result-value ${signalClass}">${data.signal.toUpperCase()}</span>
+                        </div>`;
+                    }
+                    
+                    html += `<div class="result-item">
+                        <span class="result-label">Message:</span>
+                        <span class="result-value">${data.message}</span>
+                    </div>`;
+                    
+                    if (data.webhook) {
+                        html += `<div class="result-item">
+                            <span class="result-label">Webhook Status:</span>
+                            <span class="result-value">HTTP ${data.webhook.status_code}</span>
+                        </div>`;
+                    }
+                    
+                    html += `<div class="result-item">
+                        <span class="result-label">Timestamp:</span>
+                        <span class="result-value">${new Date(data.timestamp).toLocaleString()}</span>
+                    </div>`;
+                }
+                
+                resultContent.innerHTML = html;
+                result.classList.add('show');
+                
+            } catch (error) {
+                resultContent.innerHTML = `<div class="result-item" style="border-left: 4px solid #dc3545;">
+                    <span class="result-label">Error:</span>
+                    <span class="result-value">${error.message}</span>
+                </div>`;
+                result.classList.add('show');
+            } finally {
+                loading.classList.remove('show');
+                testBtn.disabled = false;
+                runBtn.disabled = {% if not pionex_token_set or not signal_key_set %}true{% else %}false{% endif %};
+            }
+        }
+    </script>
+</body>
+</html>
