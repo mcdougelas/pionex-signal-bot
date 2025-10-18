@@ -5,6 +5,8 @@ An automated trading signal generator for Pionex that uses EMA (Exponential Movi
 
 **Current Status**: Converted from Pipedream/Cloudflare Worker setup to standalone Flask web application for easy testing and development.
 
+<img width="620" height="540" alt="replit-bot" src="https://github.com/user-attachments/assets/acbe5808-b27c-418b-ba15-eea967305ae8" />
+
 ## Recent Changes
 - **2025-10-18**: Migrated from Pipedream/Cloudflare Worker to standalone Flask application
   - Created `bot.py` module with refactored bot logic
@@ -57,6 +59,6 @@ Default settings (configurable in `bot.py`):
 - `GET /api/status` - Check configuration status
 
 ## How To :
-## (old version)
+### (old version)
 - Cloudflare - create worker - worker.js - setting cron trigger - post webhook to pipedream -
 - Pipeream step - get webhook - get data store - pipedream.py - update data store
