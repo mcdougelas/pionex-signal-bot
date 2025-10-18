@@ -61,4 +61,4 @@ Default settings (configurable in `bot.py`):
 ## How To :
 ### (old version)
 - Cloudflare - create worker - worker.js - setting cron trigger - post webhook to pipedream -
-- Pipeream step - get webhook - get data store - pipedream.py - update data store
+- Pipedream step - get webhook - get data store - pipedream.py - update data store
